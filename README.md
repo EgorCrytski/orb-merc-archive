@@ -69,7 +69,7 @@ Drag the invisible 7px hit area between panels to adjust their sizes (the resize
 ## Checks
 
 ```bash
-python3 scripts/build.py                     # expect: 12 documents, 4 images, 9 folders
+python3 scripts/build.py                     # expect: 12 documents, 8 images, 9 folders
 python3 -m unittest tests.test_content -v    # expect: 4 tests OK
 ```
 

@@ -1,0 +1,12 @@
+# Line endings. The repository stores LF; a Windows working copy may use CRLF,
+# and without this file a checkout on one machine can reach the Linux build in
+# a different form from what the author wrote.
+* text=auto eol=lf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
