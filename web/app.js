@@ -8,6 +8,13 @@ const parentOf = (path) => path.includes('/') ? path.slice(0, path.lastIndexOf('
 const urlFor = (path) => (window.offlineImages && Object.hasOwn(window.offlineImages, path))
   ? window.offlineImages[path]
   : 'content/' + path.split('/').map(encodeURIComponent).join('/');
+// Page-load revision. The host serves content with a ten-minute cache. The manifest
+// was already fetched with a revision while documents and images were not, so after an
+// update a reader could sit on a stale dossier for ten minutes without knowing. One
+// revision per page load still lets a single image be cached for that load, and the
+// data URIs the offline preview hands back are left untouched.
+const REV = Date.now();
+const bust = (url) => url.startsWith('content/') ? url + '?rev=' + REV : url;
 const encHash = (path) => '#' + path.split('/').map(encodeURIComponent).join('/');
 
 function childrenOf(dir) {
@@ -130,7 +137,7 @@ function inline(text, documentPath = '') {
     if (!/^(?!\/|\\|#|[a-z][a-z\d+.-]*:)[^\s]+$/i.test(raw)) return '[изображение: '+alt+']';
     const base = documentPath ? parentOf(documentPath) : '';
     const target = base ? base + '/' + raw : raw;
-    return `<img class="inline-image" src="${escapeHtml(urlFor(target))}" alt="${escapeHtml(alt)}" loading="lazy">`;
+    return `<img class="inline-image" src="${escapeHtml(bust(urlFor(target)))}" alt="${escapeHtml(alt)}" loading="lazy">`;
   });
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_all,label,url) => {
     const raw = url.replace(/&amp;/g,'&');
@@ -309,7 +316,7 @@ function openImage(path) {
   // The image element stays out of the document: it only loads the source and
   // reports errors, while the canvas is what the viewer actually shows.
   const image = document.createElement('img');
-  image.src = urlFor(path);
+  image.src = bust(urlFor(path));
   image.alt = name;
   image.decoding = 'async';
   image.addEventListener('load', () => {
@@ -336,7 +343,7 @@ async function openDocument(path) {
   $('document').innerHTML='<div class="nothing">Чтение документа...</div>';
   if (location.hash !== encHash(path)) history.replaceState(null, '', encHash(path));
   try {
-    const response = await fetch(urlFor(path));
+    const response = await fetch(bust(urlFor(path)), {cache:'no-store'});
     if (!response.ok) throw new Error('HTTP '+response.status);
     const source = await response.text();
     if (state.document !== path) return;
