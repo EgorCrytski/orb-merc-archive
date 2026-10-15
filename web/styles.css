@@ -1,0 +1,307 @@
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --text: #26d975;
+  --bright: #45ff94;
+  --heading: #ffff33;
+  --dim: #18874c;
+  --frame: #1ec76c;
+  --selection: #53e58e;
+  --sel-text: #001509;
+  /* Phosphor bloom. Alpha lives here because currentColor carries none, and the
+     palette is fixed, so explicit rgba keeps this working without color-mix. */
+  --glow-bright: rgba(69, 255, 148, 0.55);
+  --glow-heading: rgba(255, 255, 51, 0.45);
+  --glow-text: rgba(38, 217, 117, 0.3);
+  /* Pointer offset in the range -0.5..0.5, written by app.js. Kept unitless so
+     the layers below can scale it by their own amplitude. */
+  --crt-x: 0;
+  --crt-y: 0;
+}
+* { box-sizing: border-box; }
+
+/* The page itself never scrolls; every scrollable region is inside a panel.
+   Without this the tilted element's transformed box grows past the viewport and
+   the browser adds scrollbars as soon as the parallax moves. */
+/* scrollbar-color is inherited, so one declaration on the root styles every
+   scrollable box: the tree, the file list, the document, the search results,
+   tables and code blocks. Setting it per element is what left the search dialog
+   drawing the browser default. scrollbar-width is NOT inherited, so it is stated
+   for every element instead; naming the scrollable ones individually is exactly
+   the mistake that caused the original bug. */
+html { scrollbar-color: var(--dim) var(--bg); }
+* { scrollbar-width: thin; }
+
+/* The page itself never scrolls; every scrollable region is inside a panel.
+   Without this the tilted element's transformed box grows past the viewport and
+   the browser adds scrollbars as soon as the parallax moves. */
+html, body { overflow: hidden; }
+html, body { height: 100%; margin: 0; }
+body, button, input { font: 15px/1.25 'DejaVu Sans Mono', 'Cascadia Mono', 'Consolas', 'Liberation Mono', monospace; }
+body { background: var(--bg); color: var(--text); }
+button { cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 1px dotted var(--bright); outline-offset: -2px; }
+::selection { background: var(--selection); color: var(--sel-text); }
+.app { width: 100%; height: 100dvh; min-height: 400px; padding: 4px 7px 6px; display: flex; flex-direction: column; gap: 5px; }
+.titlebar { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--frame); padding: 3px 10px; white-space: nowrap; overflow: hidden; }
+.titlebar span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.workspace { display: flex; flex-direction: row; gap: 0; flex: 1; min-height: 0; min-width: 0; }
+.folder-panel { flex: 0 0 27%; }
+.files-panel { flex: 0 0 35%; }
+.preview-panel { flex: 1 1 0; }
+.pane-resizer { flex: 0 0 7px; min-width: 7px; position: relative; cursor: col-resize; touch-action: none; background: transparent; border: 0; }
+.pane-resizer:focus-visible { outline: none; }
+body.resizing { cursor: col-resize; user-select: none; }
+body.resizing.stacked { cursor: row-resize; }
+.panel { min-width: 0; min-height: 0; position: relative; border: 1px solid var(--frame); display: flex; flex-direction: column; }
+.panel-head { color: var(--heading); height: 25px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: -1px; padding: 0 9px; white-space: nowrap; }
+.panel-head > span:first-child { color: var(--heading); font-weight: bold; }
+.head-count { color: var(--dim); font-size: 13px; font-weight: normal; }
+.drive-path, .crumbline { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 26px; padding: 3px 9px; border-bottom: 1px solid var(--dim); }
+.crumbline button { padding: 0; border: 0; background: transparent; color: var(--text); }
+.crumbline button:hover { color: var(--bright); text-decoration: underline; }
+.tree, .files, .document-scroll { flex: 1; min-height: 0; overflow: auto; }
+.tree { padding: 3px 4px; }
+.tree button { font: inherit; display: block; width: 100%; padding: 2px 5px; border: 0; background: var(--bg); color: var(--text); white-space: pre; overflow: hidden; text-overflow: ellipsis; text-align: left; min-height: 23px; }
+.tree button.active, .file-item.selected { background: var(--selection); color: var(--sel-text); }
+.tree button:hover:not(.active), .file-item:hover:not(.selected) { background: #103f25; color: var(--bright); }
+.file-colheads, .file-item { display: grid; grid-template-columns: minmax(0, 1fr) 8ch 9ch; gap: 0; }
+.file-colheads { position: sticky; top: 0; z-index: 1; background: var(--bg); color: var(--bright); border-bottom: 1px solid var(--frame); }
+.file-colheads span, .file-item > span { min-width: 0; padding: 3px 7px; border-right: 1px solid var(--dim); white-space: nowrap; overflow: hidden; }
+.file-colheads span:last-child, .file-item > span:last-child { border-right: 0; text-align: right; }
+.file-item > span:nth-child(2), .file-colheads span:nth-child(2) { text-align: center; }
+.files { padding: 0; }
+.file-item { width: 100%; padding: 0; border: 0; background: transparent; color: var(--text); text-align: left; font: inherit; min-height: 24px; }
+.file-item .name { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.file-item .ext { color: inherit; }
+.file-item.selected span { color: var(--sel-text); border-right-color: var(--sel-text); }
+.nothing { padding: 9px; color: var(--dim); }
+.document-title { min-height: 27px; padding: 3px 10px; border-bottom: 1px solid var(--dim); display: flex; justify-content: space-between; gap: 8px; color: var(--bright); }
+.document-title span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.document-title span:last-child { color: var(--dim); white-space: nowrap; }
+.document-scroll { padding: 7px 12px; }
+.empty-doc { margin-top: 10px; color: var(--dim); line-height: 1.7; }
+.doc-content { overflow-wrap: anywhere; white-space: normal; }
+.doc-content h1,.doc-content h2,.doc-content h3 { color: var(--bright); font: inherit; font-weight: bold; margin: 15px 0 8px; }
+.doc-content h1 { margin-top: 3px; }
+.doc-content h1::after { content: '\A=========================='; display: block; white-space: pre; color: var(--dim); font-weight: normal; overflow: hidden; }
+.doc-content h2::after { content: '\A--------------------------'; display: block; white-space: pre; color: var(--dim); font-weight: normal; overflow: hidden; }
+.doc-content p { margin: 8px 0; }
+.doc-content ul, .doc-content ol { padding-left: 3ch; margin: 6px 0; }
+.doc-content li { padding: 1px 0; }
+.doc-content li::marker { color: var(--dim); }
+.doc-content blockquote { border-left: 0; margin: 8px 0; padding-left: 2ch; color: var(--text); }
+.doc-content blockquote::before { content: '> '; color: var(--bright); }
+.doc-content code, .doc-content pre { font: inherit; background: transparent; color: var(--bright); }
+.doc-content pre { white-space: pre-wrap; overflow: auto; border: 0; padding: 0; }
+.doc-content hr { height: 0; border: 0; border-top: 1px dashed var(--dim); margin: 12px 0; }
+.doc-content a { color: var(--bright); text-decoration: underline; }
+.doc-content table { border-collapse: collapse; display: block; max-width: 100%; overflow: auto; margin: 10px 0; }
+.doc-content th, .doc-content td { text-align: left; padding: 3px 5px; border: 1px solid var(--dim); }
+.statusbar { min-height: 27px; border: 1px solid var(--frame); padding: 3px 8px; display: flex; align-items: center; justify-content: space-between; gap: 14px; white-space: nowrap; overflow: hidden; }
+.statusbar span { overflow: hidden; text-overflow: ellipsis; }
+.statusbar span:nth-child(2) { color: var(--dim); }
+.toolbar { display: flex; gap: 1px; min-height: 25px; border-top: 1px solid var(--dim); overflow: auto hidden; scrollbar-width: thin; }
+.toolbar button { background: var(--bg); border: 0; color: var(--text); padding: 2px 13px 2px 0; white-space: nowrap; min-width: 0; }
+.toolbar button:hover { background: var(--selection); color: var(--sel-text); }
+.toolbar kbd { display: inline-block; font: inherit; color: var(--sel-text); background: var(--selection); padding: 2px 4px; margin-right: 4px; }
+.toolbar button:hover kbd { color: var(--sel-text); background: transparent; }
+dialog { width: min(560px, calc(100% - 30px)); max-height: 85vh; overflow: auto; border: 2px double var(--frame); background: var(--bg); color: var(--text); padding: 0; }
+dialog::backdrop { background: #000a; }
+.dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--dim); color: var(--heading); }
+.dialog-head button { border: 0; background: transparent; color: var(--bright); }
+dialog dl { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 6px; margin: 14px; }
+dialog dt { color: var(--bright); }
+dialog dd { margin: 0; }
+.dialog-foot { border-top: 1px solid var(--dim); padding: 8px 12px; color: var(--dim); }
+#search-dialog label { display: block; padding: 12px 12px 3px; }
+#search-input { display: block; width: calc(100% - 24px); margin: 0 12px 10px; background: var(--bg); color: var(--bright); border: 1px solid var(--frame); padding: 6px; }
+#search-results { max-height: 300px; overflow: auto; padding: 0 12px 8px; }
+.search-result { display: block; padding: 5px; width: 100%; text-align: left; background: none; color: var(--text); border: 0; border-bottom: 1px dotted var(--dim); }
+.search-result:hover { color: var(--sel-text); background: var(--selection); }
+.search-result span { display: block; font-size: 12px; color: inherit; }
+.image-view { margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.image-view .image-canvas { max-width: 100%; height: auto; display: block; border: 1px solid var(--dim); }
+.image-view figcaption { color: var(--dim); }
+.doc-content .inline-image { max-width: 100%; height: auto; display: block; margin: 10px 0; border: 1px solid var(--dim); }
+/* The dialogs open through showModal() into the top layer, which is not affected
+   by an ancestor transform, so they would sit still while the screen tilts. They
+   carry the same transform themselves; the axis matches because a modal dialog is
+   centred, so its centre is the centre of the screen. Their own glass layers
+   switch to absolute, because a transform makes the dialog the containing block
+   for fixed children: they then cover the dialog, while body::after covers the
+   rest of the screen. */
+/* The dialog's own glass layers are covered by the rule at the end of the file. */
+dialog {
+  transform-origin: center;
+  transform: perspective(1000px)
+             scale(0.982)
+             rotateY(calc(var(--crt-x) * 1.2deg))
+             rotateX(calc(var(--crt-y) * -0.9deg));
+  /* A dialog never scrolls itself: its own content is short, and the one long
+     list, the search results, scrolls in its own box. Without this the glass
+     layers, which are oversized so a tilt cannot expose an edge, hang past the
+     padding box and the browser puts scrollbars inside the dialog. */
+  overflow: hidden;
+}
+
+@media(max-width: 920px) {  .workspace { flex-direction: column; }  .folder-panel { flex: 0 0 27%; }
+  .files-panel { flex: 0 0 33%; }
+  .preview-panel { flex: 1 1 0; }
+  .pane-resizer { min-width: 0; min-height: 7px; flex: 0 0 7px; width: 100%; cursor: row-resize; }
+}
+@media(max-width: 550px) { .statusbar { font-size: 12px; } .statusbar span:nth-child(2) { display: none; } }
+
+/* --- CRT face and phosphor bloom ----------------------------------------- */
+
+/* Body text carries a faint bloom; the bright elements below bloom harder. */
+/* A perspective tilt instead of a displacement filter. A transform re-rasterises
+   the content rather than resampling a finished raster, so one-pixel borders stay
+   continuous and glyph edges keep their own anti-aliasing.
+   There is deliberately NO constant tilt. A fixed rotateY turns one side towards
+   the viewer and a fixed rotateX turns one horizontal edge towards the viewer, so
+   their combination always brings exactly one corner forward — with positive
+   rotateY and negative rotateX that is the top-left, which then reads as the pivot
+   even though the transform is centred. With the constant part at zero the screen
+   rests flat and tilts only towards the pointer, so the axis is always the centre.
+   No scale compensation is needed: the page behind is the same black the panels
+   sit on, so the lifted corners reveal nothing. */
+.app {
+  text-shadow: 0 0 3px var(--glow-text);
+  transform-origin: center;
+  /* The scale is not cosmetic. Under perspective the edge that turns towards the
+     viewer is magnified, so the element grows by roughly one per cent and would
+     push past the viewport, which is what produced scrollbars. Shrinking by a
+     little more than that absorbs the growth at any window size, and the margin
+     it leaves is invisible against the same black. */
+  transform: perspective(1000px)
+             scale(0.982)
+             rotateY(calc(var(--crt-x) * 1.2deg))
+             rotateX(calc(var(--crt-y) * -0.9deg));
+}
+
+.titlebar,
+.document-title,
+.file-colheads,
+.doc-content h1, .doc-content h2, .doc-content h3,
+.doc-content a,
+.doc-content code, .doc-content pre,
+#search-input,
+dialog dt {
+  text-shadow: 0 0 6px var(--glow-bright);
+}
+
+.panel-head > span:first-child,
+.dialog-head {
+  text-shadow: 0 0 7px var(--glow-heading);
+}
+
+/* Selected rows and the image frame glow the way lit phosphor spills. */
+.tree button.active,
+.file-item.selected { box-shadow: 0 0 10px var(--glow-bright); }
+.image-view .image-canvas { box-shadow: 0 0 12px rgba(30, 199, 108, 0.35); }
+.toolbar kbd { box-shadow: 0 0 8px rgba(83, 229, 142, 0.45); }
+
+/* Scanlines and a faint aperture mask, in their own layer so they can be tilted
+   in perspective. That tilt is what bends the pattern towards the edges, the way
+   a curved tube does seen slightly off-axis. Only the pattern moves; the content
+   underneath is never transformed, so text stays crisp and pointer coordinates
+   stay honest. The layer is oversized so the tilt cannot expose an edge. */
+body::before,
+dialog::before,
+.boot::before {
+  content: '';
+  position: fixed;
+  inset: -2%;
+  z-index: 59;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.16) 2px 3px),
+    repeating-linear-gradient(to right,
+      rgba(255, 0, 0, 0.035) 0 1px,
+      rgba(0, 255, 0, 0.035) 1px 2px,
+      rgba(0, 0, 255, 0.035) 2px 3px);
+  transform-origin: center;
+  transform: perspective(760px)
+             rotateY(calc(var(--crt-x) * 1.5deg))
+             rotateX(calc(var(--crt-y) * -1.2deg));
+}
+/* Shading layer: a specular sheen that follows the pointer strongly and a
+   vignette that follows it weakly. Two layers at different rates is what reads
+   as parallax between the glass and what is behind it. Fixed and inert, so it
+   sits over everything without affecting layout or intercepting a click. The
+   dialogs open through showModal() into the top layer, which outranks any
+   z-index, so they need their own copies to stay under the same glass. */
+body::after,
+dialog::after,
+.boot::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border-radius: 14px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at calc(50% + var(--crt-x) * 23%) calc(50% + var(--crt-y) * 23%),
+      rgba(120, 255, 180, 0.055) 0%, rgba(0, 0, 0, 0) 45%),
+    radial-gradient(ellipse at calc(50% + var(--crt-x) * 5%) calc(50% + var(--crt-y) * 5%),
+      rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.5) 100%);
+  box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body::after,
+  dialog::after,
+  .boot::after { animation: crt-flicker 6s steps(48, end) infinite; }
+}
+@keyframes crt-flicker {
+  0%, 100% { opacity: 0.94; }
+  50% { opacity: 1; }
+}
+
+/* The dialog's glass layers keep position: fixed from the rules above, and that
+   is deliberate rather than an oversight. The dialog carries a transform, so it
+   is already the containing block for fixed children and inset:0 covers it. More
+   importantly, a fixed descendant contributes no scrollable overflow, while an
+   absolutely positioned one does: with inset:0 on a dialog that has a 2px border
+   it hung past the padding box and put scrollbars inside the dialogs. */
+
+/* --- Boot log ------------------------------------------------------------ */
+
+/* A startup log over the archive, the way a terminal that mounts an encrypted
+   volume reports itself. It covers everything until the log finishes, then fades
+   and is removed from the DOM, so it costs nothing while the archive is in use.
+   z-index sits above the CRT layers, which are at 59 and 60. */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  padding: 16px 20px;
+  transition: opacity 0.38s ease;
+  /* The archive behind must not show through. The tilt and the scale pull the
+     edges inwards, so the black is extended far past the box by a spread shadow,
+     which affects painting only and leaves the log's layout alone. */
+  box-shadow: 0 0 0 100vmax var(--bg);
+  /* The same surface as the archive, so switching between them changes nothing. */
+  transform-origin: center;
+  transform: perspective(1000px)
+             scale(0.982)
+             rotateY(calc(var(--crt-x) * 1.2deg))
+             rotateX(calc(var(--crt-y) * -0.9deg));
+}
+.boot-done { opacity: 0; }
+.boot-line { white-space: pre; }
+/* The last line is the one the operator actually waits for. */
+.boot-line:last-child { color: var(--bright); }
+/* The log scrolls itself line by line. A boot that runs past the bottom of the
+   screen would otherwise print into a region nobody can see. Hidden rather than
+   auto: the page already forbids scrollbars, and this is driven from the script,
+   which sets scrollTop to scrollHeight after every line. The scrolling lives
+   here and not on .boot so that the oversized glass layer is not clipped. */
+#boot-log { flex: 1; min-height: 0; overflow: hidden; }
+/* Wider than the shared overlay layer: this one has to survive the transform. */
+.boot::before { inset: -6%; }

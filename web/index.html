@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>C:\ARCHIVE\ - Архив</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="boot" id="boot" aria-hidden="true"><div id="boot-log"></div></div>
+  <div class="app" id="app">
+    <header class="titlebar"><span>C:\ARCHIVE\ - Архив</span><span id="clock">--:--:--</span></header>
+    <main class="workspace">
+      <aside class="panel folder-panel" aria-label="Каталоги">
+        <div class="panel-head"><span>[ Каталоги ]</span></div>
+        <div class="drive-path">C:\ARCHIVE\</div>
+        <nav id="tree" aria-label="Дерево папок" class="tree" tabindex="0"></nav>
+      </aside>
+      <div class="pane-resizer" data-divider="0" role="separator" tabindex="0" aria-label="Изменить ширину панелей Каталоги и Файлы" aria-orientation="vertical"></div>
+      <section class="panel files-panel" aria-label="Файлы">
+        <div class="panel-head"><span>[ Файлы ]</span><span id="item-count" class="head-count"></span></div>
+        <div class="crumbline" id="breadcrumbs" aria-label="Текущий каталог"></div>
+        <div id="files" role="listbox" aria-label="Файлы и папки" tabindex="0" class="files">
+          <div id="file-colheads" class="file-colheads" aria-hidden="true"><span>Name</span><span>Type</span><span>Size</span></div>
+        </div>
+      </section>
+      <div class="pane-resizer" data-divider="1" role="separator" tabindex="0" aria-label="Изменить ширину панелей Файлы и Просмотр" aria-orientation="vertical"></div>
+      <section class="panel preview-panel" aria-label="Просмотр">
+        <div class="panel-head"><span>[ Просмотр ]</span><span class="head-count" id="doc-state">--</span></div>
+        <div class="document-title" id="document-title"><span>Файл не выбран</span><span>[R/O]</span></div>
+        <div class="document-scroll" id="document" tabindex="0"><div class="empty-doc">Файл не выбран.<br>Enter или F3 - просмотр.</div></div>
+      </section>
+    </main>
+    <div class="statusbar"><span id="status-path">C:\ARCHIVE\</span><span id="selection-count">0 объектов</span><span id="status-counter">0 файлов</span></div>
+    <footer class="toolbar" aria-label="Команды">
+      <button type="button" data-command="help"><kbd>1</kbd>Help</button>
+      <button type="button" data-command="up"><kbd>2</kbd>Up</button>
+      <button type="button" data-command="view"><kbd>3</kbd>View</button>
+      <button type="button" data-command="refresh"><kbd>5</kbd>Refresh</button>
+      <button type="button" data-command="search"><kbd>7</kbd>Search</button>
+      <button type="button" data-command="help"><kbd>10</kbd>Menu</button>
+    </footer>
+  </div>
+  <dialog id="help" aria-label="Справка по клавишам">
+    <div class="dialog-head"><span>[ Справка ]</span><button type="button" data-close="help" aria-label="Закрыть">[X]</button></div>
+    <dl><dt>↑ / ↓</dt><dd>Выбор файла или каталога</dd><dt>Enter</dt><dd>Открыть выбранное</dd><dt>Backspace</dt><dd>На уровень выше</dd><dt>Tab</dt><dd>Переключить панель</dd><dt>Граница</dt><dd>Потянуть мышью или стрелки при фокусе на разделителе</dd><dt>/ или F7</dt><dd>Поиск по именам</dd><dt>F3</dt><dd>Открыть документ</dd><dt>F5</dt><dd>Обновить индекс</dd><dt>F1 / F10</dt><dd>Справка</dd><dt>Esc</dt><dd>Закрыть окно</dd></dl>
+    <div class="dialog-foot">Esc - закрыть</div>
+  </dialog>
+  <dialog id="search-dialog" aria-label="Поиск по архиву">
+    <div class="dialog-head"><span>[ Поиск ]</span><button type="button" data-close="search-dialog" aria-label="Закрыть">[X]</button></div>
+    <label for="search-input">Имя файла или каталога:</label>
+    <input id="search-input" type="search" autocomplete="off">
+    <div class="search-results" id="search-results"></div>
+    <div class="dialog-foot">Enter - открыть, Esc - закрыть</div>
+  </dialog>
+  <script src="app.js" defer></script>
+</body>
+</html>
