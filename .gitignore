@@ -10,5 +10,6 @@ __pycache__/
 # drafts/ holds the kventa skeletons, the long-form sources behind the dossiers
 # and the style spec; the handoffs are briefs for reviewers, not artefacts.
 drafts/
+sources/
 REVIEW-HANDOFF.md
 WRITER_HANDOFF.md

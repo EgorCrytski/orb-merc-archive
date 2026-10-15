@@ -6,7 +6,7 @@ Static, keyboard-friendly Markdown archive with a strict 1990s file-manager inte
 
 - `content/Личные дела/`: four personnel dossiers (Эхо, Крюгер, Леший, Терапевт), one folder each, holding `dossier.md` with photographs beside it.
 - `content/Операции/ЧЗО - вводные материалы/`: the briefing, the timeline, the factions note, and the group's own service document.
-- `sources/`: the lore the published text is built from. `ORB-STALKER-RP-lore-2015.md` is the current edition; `ORB-STALKER-RP-lore.md` is the earlier one and is never edited. The directory is **not published** to the site, and details from it are not automatically treated as facts the field team knows.
+- `sources/`: the lore the published text is built from, kept in the working copy only. The directory is neither tracked nor published, and details from it are not automatically treated as facts the field team knows.
 
 The mission objective, client, curator, deadlines and rules of engagement are deliberately undefined and are not invented anywhere in the published documents.
 
@@ -60,7 +60,7 @@ Drag the invisible 7px hit area between panels to adjust their sizes (the resize
 | `scripts/build.py` | yes | deterministic static-site builder |
 | `scripts/preview.py` | yes | builds the single-file preview |
 | `tests/` | yes | content tests and optional Chromium checks |
-| `sources/` | yes | canon, excluded from the published site |
+| `sources/` | **no** | canon, kept in the working copy only; never tracked and never published |
 | `.github/workflows/pages.yml` | yes | Pages deployment |
 | `drafts/` | **no** | working material: the kventa skeletons, the long-form sources behind the dossiers, the style spec. Kept on disk, deliberately out of the repository |
 | `REVIEW-HANDOFF.md`, `WRITER_HANDOFF.md` | **no** | briefs for reviewers and writers |

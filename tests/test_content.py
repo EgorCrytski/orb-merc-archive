@@ -53,7 +53,8 @@ class ContentTest(unittest.TestCase):
             self.assertIn(f"Операции/ЧЗО - вводные материалы/{stem}.md", indexed)
         # Twelve documents: four operations texts, four dossiers, four section READMEs.
         self.assertEqual(len(indexed), 12)
-        self.assertTrue((ROOT / "sources" / "ORB-STALKER-RP-lore.md").exists())
+        # The lore the content is built from stays out of the published site and
+        # out of the repository; only the working copy carries it.
         self.assertFalse((ROOT / "site" / "sources").exists())
 
     def test_briefing_does_not_invent_mission_orders(self):
