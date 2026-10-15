@@ -2,37 +2,25 @@
 
 Static, keyboard-friendly Markdown archive with a strict 1990s file-manager interface: monochrome green on black, yellow bracketed panel titles, Unicode box-drawing characters, inverted selection, and no decorative graphics. No backend, database, or frontend dependencies.
 
-## Current RP material
+## What the archive contains
 
-- `content/Личные дела/`: four **unfilled** personnel dossiers (Эхо, Крюгер, Леший, Терапевт).
-- `content/Операции/ЧЗО - вводные материалы/`: briefing, timeline, and groups/background for the planned ChZO deployment.
-- `sources/ORB-STALKER-RP-lore.md`: verbatim source material supplied by the user. This directory is **not published** to the site. Origin/causation details from the source are not automatically assigned to the field operatives as known facts.
+- `content/Личные дела/`: four personnel dossiers (Эхо, Крюгер, Леший, Терапевт), one folder each, holding `dossier.md` with photographs beside it.
+- `content/Операции/ЧЗО - вводные материалы/`: the briefing, the timeline, the factions note, and the group's own service document.
+- `sources/`: the lore the published text is built from. `ORB-STALKER-RP-lore-2015.md` is the current edition; `ORB-STALKER-RP-lore.md` is the earlier one and is never edited. The directory is **not published** to the site, and details from it are not automatically treated as facts the field team knows.
 
-No operation order, personnel history, affiliations, or secret intelligence has been invented.
+The mission objective, client, curator, deadlines and rules of engagement are deliberately undefined and are not invented anywhere in the published documents.
 
 ## Content
 
-Everything under `content/` is published. Add or remove folders and `.md` files freely; the generated file index and site navigation update automatically with each push to `main`. Subfolders are supported. The content directory and file names may use Unicode.
+Everything under `content/` is published. Add or remove folders and `.md` files freely; the generated file index and site navigation update automatically with each push to `main`. Subfolders are supported, and names may use Unicode.
 
-Example:
+Images carry their own index entry type, so adding photographs never changes the document count.
 
-```text
-content/
-  Личные дела/
-    README.md
-    001-оперативник.md
-    Группа Альфа/
-      002-оперативник.md
-  Приказы/
-    README.md
-    2012-09-15.md
-```
-
-**Important:** All documents published on GitHub Pages are public. Do not put secrets or real personal data in `content/`. A hard-to-guess URL and `noindex` are not access controls.
+**Important:** all documents published on GitHub Pages are public. Do not put secrets or real personal data in `content/`. A hard-to-guess URL and `noindex` are not access controls.
 
 ## Standalone preview
 
-Run `python3 scripts/build.py` and `python3 scripts/preview.py`, then open `syndicate-preview.html` without a server. This file embeds the current archive and is useful for sharing design changes.
+Run `python3 scripts/build.py` and `python3 scripts/preview.py`, then open `syndicate-preview.html` without a server. The preview embeds the documents and images as data URIs, so it stays one portable file.
 
 ## Local preview
 
@@ -45,11 +33,11 @@ Visit http://localhost:8000. Do not open `index.html` directly as `file://`, bec
 
 ## GitHub Pages
 
-1. Create a GitHub repository and push this project to its `main` branch.
+1. Push the repository to `main`.
 2. In **Settings → Pages → Build and deployment**, choose **GitHub Actions**.
-3. Every subsequent push rebuilds and publishes the site automatically.
+3. Every subsequent push to `main` rebuilds and publishes the site.
 
-GitHub Free requires a public repository for Pages. GitHub Pro and eligible paid plans support Pages from private repositories, but the deployed site is still publicly viewable.
+GitHub Free requires a public repository for Pages. Paid plans support Pages from private repositories, but the deployed site is still publicly viewable.
 
 ## Keyboard controls
 
@@ -63,12 +51,26 @@ GitHub Free requires a public repository for Pages. GitHub Pro and eligible paid
 
 Drag the invisible 7px hit area between panels to adjust their sizes (the resize cursor marks its position). In narrow layouts the panes stack vertically and the dividers resize their heights. Arrow keys can also move a focused divider (Shift for a larger step). The layout is saved locally in your browser and restored on the next visit, separately for wide and narrow screens. No server-side settings are needed.
 
-## Structure
+## Repository layout
 
-- `web/`: terminal-style HTML, CSS, JS (no icons or images)
-- `content/`: Markdown source tree
-- `scripts/build.py`: deterministic static-site builder
-- `.github/workflows/pages.yml`: GitHub Pages deployment
-- `site/`: generated output (not committed)
-- `tests/browser_check.py`: optional Chromium smoke test (requires Playwright and Chromium)
-- `tests/browser_column_alignment.py`: checks file-list column alignment during scroll and resizing at desktop and mobile widths
+| Path | Tracked | Note |
+|---|---|---|
+| `web/` | yes | terminal HTML, CSS and JS. No icons or images |
+| `content/` | yes | the Markdown tree that gets published |
+| `scripts/build.py` | yes | deterministic static-site builder |
+| `scripts/preview.py` | yes | builds the single-file preview |
+| `tests/` | yes | content tests and optional Chromium checks |
+| `sources/` | yes | canon, excluded from the published site |
+| `.github/workflows/pages.yml` | yes | Pages deployment |
+| `drafts/` | **no** | working material: the kventa skeletons, the long-form sources behind the dossiers, the style spec. Kept on disk, deliberately out of the repository |
+| `REVIEW-HANDOFF.md`, `WRITER_HANDOFF.md` | **no** | briefs for reviewers and writers |
+| `site/`, `syndicate-preview.html` | no | generated output |
+
+## Checks
+
+```bash
+python3 scripts/build.py                     # expect: 12 documents, 4 images, 9 folders
+python3 -m unittest tests.test_content -v    # expect: 4 tests OK
+```
+
+`tests/test_build.py` fails on Windows for a pre-existing newline reason. `tests/browser_*.py` are Linux-only and hardcode `/usr/bin/chromium`.

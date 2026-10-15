@@ -1,4 +1,14 @@
+# Generated output — rebuilt from web/ and content/ by the scripts.
 site/
 syndicate-preview.html
+
+# Python
 __pycache__/
 *.pyc
+
+# Working material. Kept on disk and deliberately kept out of the repository:
+# drafts/ holds the kventa skeletons, the long-form sources behind the dossiers
+# and the style spec; the handoffs are briefs for reviewers, not artefacts.
+drafts/
+REVIEW-HANDOFF.md
+WRITER_HANDOFF.md
