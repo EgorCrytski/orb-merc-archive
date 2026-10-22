@@ -576,7 +576,7 @@ async function bootSequence() {
     ["[    1.501000]", "archive-term[511]: channel: handshake HQ-7 ... accepted", 380],
     ["[    1.524000]", "archive-term[511]: cipher: GOST 28147-89 ... active", 16],
     ["[    1.541000]", "archive-term[511]: access check ... ok", 14],
-    ["[    1.558000]", "archive-term[511]: group D.I.C.E.: 4 records", 13],
+    ["[    1.558000]", "archive-term[511]: group D.I.C.E.: @@PERSONNEL@@ records", 13],
     ["[    1.574000]", "archive-term[511]: last sync 16.10.2015", 12],
     ["[    1.592000]", "[  OK  ] Started ORB Archive Terminal.", 14],
     ["[    1.611000]", "[  OK  ] Reached target Multi-User System.", 12],
@@ -585,10 +585,11 @@ async function bootSequence() {
   const indexLine = state.entries.length
     ? `index: ${documents} documents, ${images} images`
     : 'index: unavailable';
+  const personnel = state.entries.filter(entry => entry.type === 'dir' && parentOf(entry.path) === 'Личные дела').length;
   for (const [prefix, text, wait] of lines) {
     const row = document.createElement('div');
     row.className = 'boot-line';
-    row.textContent = `${prefix} ${text.replace('@@INDEX@@', indexLine)}`;
+    row.textContent = `${prefix} ${text.replace('@@INDEX@@', indexLine).replace('@@PERSONNEL@@', String(personnel))}`;
     log.append(row);
     // Follow the printing. Line height is uniform, so this moves the log up by
     // exactly one line per line and the newest line always sits at the bottom.
