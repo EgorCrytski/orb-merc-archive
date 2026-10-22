@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content"
 
-CHARACTERS = ("Эхо", "Крюгер", "Леший", "Терапевт")
+CHARACTERS = ("Эхо", "Крюгер", "Леший", "Терапевт", "Дрезден")
 # Structure of an in-universe personnel file. The archive speaks for itself here:
 # identification, legal standing, what the man is good for, and HQ's own assessment.
 DOSSIER_SECTIONS = (
@@ -51,8 +51,8 @@ class ContentTest(unittest.TestCase):
         for stem in ("00 - Предварительный брифинг", "01 - Хронология и инциденты", "02 - Стороны и контакты",
                      "03 - Обозначение и профиль группы"):
             self.assertIn(f"Операции/ЧЗО - вводные материалы/{stem}.md", indexed)
-        # Twelve documents: four operations texts, four dossiers, four section READMEs.
-        self.assertEqual(len(indexed), 12)
+        # Thirteen documents: four operations texts, five dossiers, four section READMEs.
+        self.assertEqual(len(indexed), 13)
         # The lore the content is built from stays out of the published site and
         # out of the repository; only the working copy carries it.
         self.assertFalse((ROOT / "site" / "sources").exists())
